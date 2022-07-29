@@ -1,0 +1,270 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type canvas_item;
+
+uniform vec2 resol = vec2(1280, 720);
+
+uniform bool DITHER_ON = true;
+uniform sampler2D DITHER_PATTERN;
+uniform vec2 SCREEN_TEXEL_SIZE = vec2(320, 180);
+uniform vec2 DITHER_TEXEL_SIZE = vec2(28, 4);
+uniform float DITHER_COLORS = 64;
+
+uniform bool applyChroma = true;
+uniform float amountChroma : hint_range( 0.0, 0.2 ) = 0.07;
+uniform bool applyVignette = true;
+uniform float amountVignette = 0.1;
+uniform bool applyTear = false;
+// Vibration strength
+uniform float shake_power : hint_range( 0.0, 0.03 ) = 0.03;
+// Vibration rate
+uniform float shake_rate : hint_range( 0.0, 1.0 ) = 0.2;
+// Vibration speed
+uniform float shake_speed : hint_range( 0.05, 5.0 ) = 5.0;
+// Vibration block size
+uniform float shake_block_size = 30.5;
+
+uniform bool isInWater = false;
+uniform float amplitude = .12;
+uniform float turbulence = .5;
+
+uniform vec4 foreground: hint_color = vec4(.55, .75, 1., 1.);
+uniform vec4 background: hint_color = vec4(.0, .3, .5, 1.);
+
+const float tau = 6.28318530718;
+
+float sin01(float x) {
+	return (sin(x*tau)+1.)/2.;
+}
+float cos01(float x) {
+	return (cos(x*tau)+1.)/2.;
+}
+
+// rand func from theartofcode (youtube channel)
+vec2 rand01(vec2 p) {
+    vec3 a = fract(p.xyx * vec3(123.5, 234.34, 345.65));
+    a += dot(a, a+34.45);
+    
+    return fract (vec2(a.x * a.y, a.y * a.z));
+}
+
+float circ(vec2 uv, vec2 pos, float r) {
+    return smoothstep(r, 0., length(uv - pos));
+}
+
+float smoothFract(float x, float blurLevel) {
+	return pow(cos01(x), 1./blurLevel);
+}
+
+float manDist(vec2 from, vec2 to) {
+    return abs(from.x - to.x) + abs(from.y - to.y);
+}
+
+
+float distFn(vec2 from, vec2 to) {
+	float x = length (from - to);
+    return pow (x, 4.);
+}
+
+float voronoi(vec2 uv, float t, float seed, float size) {
+    float minDist = 100.;
+    float gridSize = size;
+    
+    vec2 cellUv = fract(uv * gridSize) - 0.5;
+    vec2 cellCoord = floor(uv * gridSize);
+    
+    for (float x = -1.; x <= 1.; ++ x) {
+        for (float y = -1.; y <= 1.; ++ y) {
+            vec2 cellOffset = vec2(x,y);
+            // Random 0-1 for each cell
+            vec2 rand01Cell = rand01(cellOffset + cellCoord + seed);
+            // Get position of point
+            vec2 point = cellOffset + sin(rand01Cell * (t+10.)) * .5;
+			// Get distance between pixel and point
+            float dist = distFn(cellUv, point);
+    		minDist = min(minDist, dist);
+        }
+    }
+    return minDist;
+}
+
+vec4 underwater(vec2 uv, float iTime) {
+    
+    float t = iTime * .35;
+    
+	// Distort uv coordinates
+    uv.xy += sin01(uv.x*turbulence + t) * amplitude;
+    uv.xy -= sin01(uv.y*turbulence + t) * amplitude;
+    
+	// Apply two layers of voronoi, one smaller   
+    float v;
+    float sizeDistortion = abs(uv.x)/3.;
+    v += voronoi(uv, t * 2., 0.5, 2.5 - sizeDistortion);
+    v += voronoi(uv, t * 4., 0., 4. - sizeDistortion) / 2.;
+    
+    // Foreground color
+    vec3 col = v * foreground.rgb;
+    
+    // Background color
+    col += (1.-v) * background.rgb;
+    
+    // Output to screen
+	return vec4(col,1.0);
+}
+
+vec2 underwater_uv(vec2 uv, float iTime) {
+    
+    float t = iTime * .35;
+    
+	// Distort uv coordinates
+    uv.xy += sin01(uv.x*turbulence + t) * amplitude;
+    uv.xy -= sin01(uv.y*turbulence + t) * amplitude;
+	
+	return uv;
+}
+
+vec4 chromaticAbberation(sampler2D sTex, vec2 uv) {
+	vec4 tex = texture(sTex, uv);
+	vec4 col = tex;
+	if (applyChroma) {
+		float dis = distance(uv , vec2(0.5)) * amountChroma;
+    
+		col.r = texture(sTex, uv + (dis * amountChroma)).r;
+		col.g = texture(sTex, uv).g;
+		col.b = texture(sTex, uv - (dis * amountChroma)).b;
+	} else {
+		return tex;
+	}
+	return col;
+}
+
+vec4 vignette(vec2 uv, vec4 col) {
+	if (applyVignette) {
+		float vig = 1.0 - length(uv - vec2(0.5));
+		vig = pow(abs(vig), amountVignette);
+		return col * vec4(vig, vig, vig, 1.0);
+	} else {
+		return col;
+	}
+	
+}
+
+float channelError(float col, float colMin, float colMax) {
+	float range = abs(colMin - colMax);
+	float aRange = abs(col - colMin);
+	return aRange / range;
+}
+
+float ditheredChannel(float error, vec2 ditherBlockUV, float ditherSteps) {
+	error = floor(error * ditherSteps) / ditherSteps;
+	vec2 ditherUV = vec2(error, 0);
+	ditherUV.x += ditherBlockUV.x;
+	ditherUV.y = ditherBlockUV.y;
+	return texture(DITHER_PATTERN, ditherUV).x;
+}
+
+vec4 RGBtoYUV(vec4 rgba) {
+	vec4 yuva;
+	yuva.r = rgba.r * 0.2126 + 0.7152 * rgba.g + 0.0722 * rgba.b;
+	yuva.g = (rgba.b - yuva.r) / 1.8556;
+	yuva.b = (rgba.r - yuva.r) / 1.5748;
+	yuva.a = rgba.a;
+
+	// Adjust to work on GPU
+	yuva.gb += 0.5;
+
+	return yuva;
+}
+
+vec4 YUVtoRGB(vec4 yuva) {
+    yuva.gb -= 0.5;
+    return vec4(
+        yuva.r * 1. + yuva.g * 0. + yuva.b * 1.5748,
+        yuva.r * 1. + yuva.g * -0.187324 + yuva.b * -0.468124,
+        yuva.r * 1. + yuva.g * 1.8556 + yuva.b * 0.,
+        yuva.a);
+}
+
+float random( float seed ) {
+	return fract( 543.2543 * sin( dot( vec2( seed, seed ), vec2( 3525.46, -54.3415 ) ) ) );
+}
+
+vec2 tearUV(vec2 uv, float time) {
+	float enable_shift = float(
+		random( trunc( time * shake_speed ) )
+	<	shake_rate
+	);
+
+	vec2 fixed_uv = uv;
+	fixed_uv.x += (
+		random(
+			( trunc( uv.y * shake_block_size ) / shake_block_size )
+		+	time
+		) - 0.5
+	) * shake_power * enable_shift;
+	return fixed_uv;
+}
+
+vec4 apply_dither(vec4 col, vec2 uv) {
+	vec4 yuv = RGBtoYUV(col);
+
+	// Clamp the YUV color to specified color depth (default: 32, 5 bits per channel, as per playstation hardware)
+	vec4 col1 = floor(yuv * DITHER_COLORS) / DITHER_COLORS;
+	vec4 col2 = ceil(yuv * DITHER_COLORS) / DITHER_COLORS;
+
+	// Calculate dither texture UV based on the input texture
+	float ditherSize = DITHER_TEXEL_SIZE.y;
+	float ditherSteps = DITHER_TEXEL_SIZE.x / ditherSize;
+
+	vec2 ditherBlockUV = uv;
+	ditherBlockUV.x = mod(ditherBlockUV.x, (ditherSize / SCREEN_TEXEL_SIZE.x));
+	ditherBlockUV.x /= (ditherSize / SCREEN_TEXEL_SIZE.x);
+	ditherBlockUV.y = mod(ditherBlockUV.y, (ditherSize / SCREEN_TEXEL_SIZE.y));
+	ditherBlockUV.y /= (ditherSize / SCREEN_TEXEL_SIZE.y);
+	ditherBlockUV.x /= ditherSteps;
+
+	// Dither each channel individually
+	yuv.x = mix(col1.x, col2.x, ditheredChannel(channelError(yuv.x, col1.x, col2.x), ditherBlockUV, ditherSteps));
+	yuv.y = mix(col1.y, col2.y, ditheredChannel(channelError(yuv.y, col1.y, col2.y), ditherBlockUV, ditherSteps));
+	yuv.z = mix(col1.z, col2.z, ditheredChannel(channelError(yuv.z, col1.z, col2.z), ditherBlockUV, ditherSteps));
+
+	return YUVtoRGB(yuv);
+}
+
+
+void fragment() {
+	vec2 uv = UV;
+	if (isInWater) {
+		uv = underwater_uv(uv, TIME);
+		uv.x = clamp(uv.x, 0. + TEXTURE_PIXEL_SIZE.x * 3., 1. - TEXTURE_PIXEL_SIZE.x * 3.);
+		uv.y = clamp(uv.y, 0. + TEXTURE_PIXEL_SIZE.y * 3., 1. - TEXTURE_PIXEL_SIZE.y * 3.);
+	}
+	if (applyTear) {
+		uv = tearUV(uv, TIME);
+	}
+	// sample the texture and convert to YUV color space
+	vec4 col = chromaticAbberation(TEXTURE, uv);
+	col = vignette(uv, col);
+	if (isInWater) {
+		col *= underwater(uv, TIME);
+	}
+	
+	if (DITHER_ON) {
+		COLOR = apply_dither(col, UV);
+	} else {
+		COLOR = col;
+	}
+	
+//	vec4 col = texture(TEXTURE, UV);
+	
+	
+//	vec4 col = chromaticAbberation(TEXTURE, UV);
+//	col = vignette(UV, col);
+//	vec3 luminocity = vec3(0.299, 0.587, 0.114);
+//	float luma = dot(col.rgb, luminocity);
+//	COLOR = col * vec4(vec3(dither8x8(resol*UV, luma)), 1.0);
+//	//COLOR = col;
+//
+}
+"

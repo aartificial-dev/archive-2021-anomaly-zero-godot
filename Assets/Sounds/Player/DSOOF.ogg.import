@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/DSOOF.ogg-9bcf6765aa1720f7a6ada200457c3e87.oggstr"
+
+[deps]
+
+source_file="res://Assets/Sounds/Player/DSOOF.ogg"
+dest_files=[ "res://.import/DSOOF.ogg-9bcf6765aa1720f7a6ada200457c3e87.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

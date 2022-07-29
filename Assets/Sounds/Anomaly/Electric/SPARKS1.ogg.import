@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/SPARKS1.ogg-97044df90c43fc02b74b2125ade8e3e0.oggstr"
+
+[deps]
+
+source_file="res://Assets/Sounds/Anomaly/Electric/SPARKS1.ogg"
+dest_files=[ "res://.import/SPARKS1.ogg-97044df90c43fc02b74b2125ade8e3e0.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

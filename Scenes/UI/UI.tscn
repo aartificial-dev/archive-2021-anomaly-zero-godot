@@ -1,0 +1,192 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://Assets/Fonts/AmmoSmall.tres" type="DynamicFont" id=1]
+[ext_resource path="res://Assets/Fonts/AmmoBig.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Assets/Fonts/AmmoLabels.tres" type="DynamicFont" id=3]
+[ext_resource path="res://Scripts/UI/AmmoLabel.cs" type="Script" id=4]
+
+[sub_resource type="StyleBoxLine" id=1]
+color = Color( 0, 0, 0, 0.4 )
+grow_begin = 3.0
+grow_end = 3.0
+thickness = 3
+
+[sub_resource type="StyleBoxLine" id=2]
+color = Color( 0, 0, 0, 0.403922 )
+grow_begin = 3.0
+grow_end = 3.0
+thickness = 3
+vertical = true
+
+[sub_resource type="StyleBoxLine" id=3]
+color = Color( 1, 1, 1, 0.580392 )
+grow_begin = 3.0
+grow_end = 3.0
+vertical = true
+
+[sub_resource type="StyleBoxLine" id=4]
+color = Color( 1, 1, 1, 0.592157 )
+grow_begin = 3.0
+grow_end = 3.0
+
+[node name="UI" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Ammo" type="Control" parent="." groups=["AmmoUI"]]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -123.0
+margin_top = -75.0
+margin_right = -16.0
+margin_bottom = -16.0
+mouse_filter = 2
+
+[node name="ColorRect" type="ColorRect" parent="Ammo"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0.27451, 0.27451, 0.27451, 0.784314 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="AmmoInv" type="Control" parent="Ammo"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 52.5
+margin_top = -21.5
+margin_right = 52.5
+margin_bottom = -21.5
+mouse_filter = 2
+script = ExtResource( 4 )
+MaxAmmo = 999
+CurrentAmmo = 32
+
+[node name="Back" type="Label" parent="Ammo/AmmoInv"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -54.0
+margin_bottom = 45.0
+custom_colors/font_color = Color( 0.462745, 0.462745, 0.462745, 0.4 )
+custom_colors/font_outline_modulate = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_as_outline = 0
+custom_fonts/font = ExtResource( 1 )
+text = "888"
+align = 2
+
+[node name="Value" type="Label" parent="Ammo/AmmoInv"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -54.0
+margin_bottom = 45.0
+custom_colors/font_color = Color( 0.839216, 0.827451, 0.792157, 1 )
+custom_fonts/font = ExtResource( 1 )
+text = "32"
+align = 2
+
+[node name="AmmoActual" type="Control" parent="Ammo"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -50.5
+margin_top = -31.5
+margin_right = -50.5
+margin_bottom = -31.5
+mouse_filter = 2
+script = ExtResource( 4 )
+CurrentAmmo = 25
+
+[node name="Back" type="Label" parent="Ammo/AmmoActual"]
+margin_right = 48.0
+margin_bottom = 58.0
+custom_colors/font_color = Color( 0.462745, 0.462745, 0.462745, 0.4 )
+custom_colors/font_outline_modulate = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_as_outline = 0
+custom_fonts/font = ExtResource( 2 )
+text = "88"
+align = 2
+
+[node name="Value" type="Label" parent="Ammo/AmmoActual"]
+margin_right = 48.0
+margin_bottom = 58.0
+custom_colors/font_color = Color( 0.839216, 0.827451, 0.792157, 1 )
+custom_fonts/font = ExtResource( 2 )
+text = "25"
+align = 2
+
+[node name="ModeLabel" type="Label" parent="Ammo"]
+anchor_left = 0.477
+anchor_right = 1.0
+margin_left = -0.0390015
+margin_right = -2.0
+margin_bottom = 15.0
+custom_colors/font_color = Color( 0.839216, 0.827451, 0.792157, 1 )
+custom_fonts/font = ExtResource( 3 )
+text = "semi"
+align = 1
+
+[node name="WeaponLabel" type="Label" parent="Ammo"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -15.0
+custom_colors/font_color = Color( 0.839216, 0.827451, 0.792157, 1 )
+custom_fonts/font = ExtResource( 3 )
+text = "Pistol"
+align = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer"]
+margin_left = 638.0
+margin_top = 358.0
+margin_right = 641.0
+margin_bottom = 362.0
+mouse_filter = 2
+custom_styles/separator = SubResource( 1 )
+
+[node name="VSeparator" type="VSeparator" parent="CenterContainer"]
+margin_left = 638.0
+margin_top = 358.0
+margin_right = 642.0
+margin_bottom = 361.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/separator = SubResource( 2 )
+
+[node name="VSeparator2" type="VSeparator" parent="CenterContainer"]
+margin_left = 638.0
+margin_top = 358.0
+margin_right = 642.0
+margin_bottom = 361.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/separator = SubResource( 3 )
+
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer"]
+margin_left = 638.0
+margin_top = 358.0
+margin_right = 641.0
+margin_bottom = 362.0
+mouse_filter = 2
+custom_styles/separator = SubResource( 4 )

@@ -1,0 +1,95 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://Scenes/Player/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Utils/SunGradient.tres" type="Texture" id=2]
+[ext_resource path="res://Utils/TopGradient.tres" type="Texture" id=3]
+[ext_resource path="res://Utils/LightGradient.tres" type="Texture" id=4]
+[ext_resource path="res://Utils/ShadowGradient.tres" type="Texture" id=5]
+[ext_resource path="res://Utils/ProceduralSkyEnvFull.cs" type="Script" id=6]
+[ext_resource path="res://Utils/MainEnvironment.tres" type="Environment" id=7]
+[ext_resource path="res://Utils/HorizonGradient.tres" type="Texture" id=8]
+[ext_resource path="res://Assets/Materials/Prototype/TestWall.tres" type="Material" id=9]
+[ext_resource path="res://Assets/Materials/Prototype/TestGround.tres" type="Material" id=10]
+[ext_resource path="res://addons/Mirror/Mirror/Mirror.gd" type="Script" id=11]
+
+[sub_resource type="PlaneMesh" id=1]
+size = Vector2( 40, 40 )
+
+[sub_resource type="BoxShape" id=2]
+extents = Vector3( 1, 1.99886, 0.202143 )
+
+[node name="TestScene" type="Spatial"]
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource( 7 )
+script = ExtResource( 6 )
+DirectionalLightPath = NodePath("DirectionalLight")
+sunGradient = ExtResource( 2 )
+skyTopGradient = ExtResource( 3 )
+skyHorizonGradient = ExtResource( 8 )
+skyLightGradient = ExtResource( 4 )
+skyShadowGradient = ExtResource( 5 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="WorldEnvironment"]
+transform = Transform( 0.636888, 0.297862, 0.711092, -0.760118, 0.396721, 0.51462, -0.128819, -0.868269, 0.479077, 0, 4, 0 )
+light_color = Color( 0.980097, 0.93123, 0.883868, 1 )
+light_energy = 0.344134
+shadow_enabled = true
+
+[node name="CSGMesh" type="CSGMesh" parent="."]
+use_collision = true
+mesh = SubResource( 1 )
+material = ExtResource( 10 )
+
+[node name="CSGBox" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 2, 0 )
+use_collision = true
+height = 4.0
+depth = 10.0
+material = ExtResource( 9 )
+
+[node name="CSGBox2" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 2, 0 )
+use_collision = true
+height = 4.0
+depth = 10.0
+material = ExtResource( 9 )
+
+[node name="VisibilityEnabler" type="VisibilityEnabler" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 2, -4 )
+aabb = AABB( -1, -2.04246, -0.183524, 2, 4.08491, 0.367048 )
+
+[node name="Mirror" type="Spatial" parent="VisibilityEnabler" groups=["Mirror"]]
+script = ExtResource( 11 )
+size = Vector2( 2, 4.013 )
+ResolutionPerUnit = 416
+MainCamPath = NodePath("../../Camera")
+
+[node name="StaticBody" type="StaticBody" parent="VisibilityEnabler/Mirror"]
+input_ray_pickable = false
+
+[node name="CollisionShape" type="CollisionShape" parent="VisibilityEnabler/Mirror/StaticBody"]
+shape = SubResource( 2 )
+
+[node name="VisibilityEnabler2" type="VisibilityEnabler" parent="."]
+transform = Transform( 0.546657, 0, 0.837356, 0, 1, 0, -0.837356, 0, 0.546657, -6.32679, 2, -4 )
+aabb = AABB( -0.964266, -2.01396, -0.220997, 1.92853, 4.02792, 0.441995 )
+
+[node name="Mirror2" type="Spatial" parent="VisibilityEnabler2" groups=["Mirror"]]
+script = ExtResource( 11 )
+size = Vector2( 2, 4.013 )
+ResolutionPerUnit = 416
+MainCamPath = NodePath("../../Camera")
+
+[node name="StaticBody" type="StaticBody" parent="VisibilityEnabler2/Mirror2"]
+input_ray_pickable = false
+
+[node name="CollisionShape" type="CollisionShape" parent="VisibilityEnabler2/Mirror2/StaticBody"]
+shape = SubResource( 2 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.227, 0 )
+visible = false

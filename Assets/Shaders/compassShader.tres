@@ -1,0 +1,22 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type canvas_item;
+// 64, 208
+const float TAU = 6.28318530718;
+
+uniform sampler2D compass_texture;
+uniform float angle: hint_range(0., 6.28318530718) = 0.0;
+uniform vec2 compass_size = vec2(208., 24.);
+uniform vec2 rect_size = vec2(64., 24.);
+uniform float north_start = 0.342;
+uniform float alpha_mod: hint_range(0., 4.) = 0.2;
+
+void fragment() {
+	vec4 col = texture(compass_texture, UV * (rect_size / compass_size) + vec2(north_start + angle / TAU, 0.));
+	float dist = abs(UV.x - 0.5) * alpha_mod;
+	COLOR = col;
+	if (col.a > 0.1) {
+		COLOR.a = max(0., 1. - dist);
+	}
+}"

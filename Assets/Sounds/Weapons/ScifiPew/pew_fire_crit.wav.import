@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/pew_fire_crit.wav-f134da7b7f3147c8b87fc35d19b26f4e.sample"
+
+[deps]
+
+source_file="res://Assets/Sounds/Weapons/ScifiPew/pew_fire_crit.wav"
+dest_files=[ "res://.import/pew_fire_crit.wav-f134da7b7f3147c8b87fc35d19b26f4e.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

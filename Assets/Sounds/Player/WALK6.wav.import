@@ -1,0 +1,23 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/WALK6.wav-3fc9eedf2f9e1b1e026d01fcd3944f98.sample"
+
+[deps]
+
+source_file="res://Assets/Sounds/Player/WALK6.wav"
+dest_files=[ "res://.import/WALK6.wav-3fc9eedf2f9e1b1e026d01fcd3944f98.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

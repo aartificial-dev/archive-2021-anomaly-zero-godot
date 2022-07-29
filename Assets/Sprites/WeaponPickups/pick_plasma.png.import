@@ -1,0 +1,37 @@
+[remap]
+
+importer="texture"
+type="StreamTexture"
+path.s3tc="res://.import/pick_plasma.png-acc9c7687417e160a80bc5e97d6d7ca6.s3tc.stex"
+path.etc2="res://.import/pick_plasma.png-acc9c7687417e160a80bc5e97d6d7ca6.etc2.stex"
+metadata={
+"imported_formats": [ "s3tc", "etc2" ],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://Assets/Sprites/WeaponPickups/pick_plasma.png"
+dest_files=[ "res://.import/pick_plasma.png-acc9c7687417e160a80bc5e97d6d7ca6.s3tc.stex", "res://.import/pick_plasma.png-acc9c7687417e160a80bc5e97d6d7ca6.etc2.stex" ]
+
+[params]
+
+compress/mode=2
+compress/lossy_quality=0.7
+compress/hdr_mode=0
+compress/bptc_ldr=0
+compress/normal_map=2
+flags/repeat=true
+flags/filter=false
+flags/mipmaps=false
+flags/anisotropic=false
+flags/srgb=0
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/HDR_as_SRGB=false
+process/invert_color=false
+process/normal_map_invert_y=false
+stream=false
+size_limit=0
+detect_3d=false
+svg/scale=1.0
